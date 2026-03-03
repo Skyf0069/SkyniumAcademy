@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skynium Academy - ENT pour les étudiants </title>
+
+    <!-- Fichiers CSS Globaux -->
+    <link rel="stylesheet" href="https://skynium.fr/ressources/style.css">
+    <link rel="stylesheet" href="https://skynium.fr/ressources/fontawesome/css/all.min.css">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="https://skynium.fr/ressources/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="https://skynium.fr/ressources/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="https://skynium.fr/ressources/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://skynium.fr/ressources/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Skynium Academy" />
+    <link rel="manifest" href="https://skynium.fr/ressources/favicon/site.webmanifest" />
+
+    <style>
+        .academy-hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 2rem;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .academy-hero h1 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .academy-hero p {
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        /* Encart d'avertissement pour la restriction d'accès */
+        .restriction-badge {
+            background-color: rgba(255, 138, 63, 0.1); /* Fond orange très léger */
+            border-left: 4px solid var(--tertiary);
+            color: var(--primary);
+            padding: 15px 20px;
+            margin: 2rem auto 0 auto;
+            max-width: 700px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .academy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto 4rem auto;
+        }
+
+        .academy-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .academy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+
+        .academy-icon {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .academy-card h2 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .academy-card p {
+            color: var(--text-color);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .academy-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: var(--white) !important;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: background-color var(--transition-speed) ease, transform 0.2s;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .academy-btn:hover {
+            background-color: var(--secondary);
+            color: var(--white) !important;
+            transform: translateY(-2px);
+        }
+        
+        .academy-btn.ruby-action {
+            background-color: transparent;
+            color: #E0115F !important; /* Couleur Rouge Ruby approximative */
+            border: 2px solid #E0115F;
+        }
+        
+        .academy-btn.ruby-action:hover {
+            background-color: #E0115F;
+            color: var(--white) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================ -->
+    <!-- LIEN D'ÉVITEMENT                             -->
+    <!-- ============================================ -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <!-- ============================================ -->
+    <!-- BOUTON & PANNEAU ACCESSIBILITÉ               -->
+    <!-- ============================================ -->
+    <button id="accessibility-button" aria-label="Ouvrir le panneau d'accessibilité" aria-expanded="false" aria-controls="accessibility-panel">
+        <i class="fas fa-universal-access" aria-hidden="true"></i>
+    </button>
+
+    <aside id="accessibility-panel" class="accessibility-panel" role="dialog" aria-labelledby="accessibility-title" aria-modal="false">
+        <button class="close-btn" aria-label="Fermer le panneau d'accessibilité" id="close-panel-btn">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+
+        <h2 id="accessibility-title">Options d'accessibilité</h2>
+        <div class="accessibility-status" role="status" aria-live="polite">
+            <p><strong>Modes actifs :</strong> <span id="active-modes-count">Aucun</span></p>
+        </div>
+
+        <section class="accessibility-section">
+            <h3>Modes d'accessibilité</h3>
+            <div class="accessibility-option" data-mode="epilepsy-safe" role="switch" aria-checked="false" tabindex="0">
+                <div>
+                    <strong>Mode sans échec pour l'épilepsie</strong>
+                    <p class="option-desc">Atténue la couleur et supprime les clignements</p>
+                </div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="visually-impaired" role="switch" aria-checked="false" tabindex="0">
+                <div>
+                    <strong>Mode malvoyant</strong>
+                    <p class="option-desc">Améliore les visuels du site</p>
+                </div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="cognitive-disability" role="switch" aria-checked="false" tabindex="0">
+                <div>
+                    <strong>Mode handicap cognitif</strong>
+                    <p class="option-desc">Aide à se concentrer sur un contenu spécifique</p>
+                </div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="adhd-friendly" role="switch" aria-checked="false" tabindex="0">
+                <div>
+                    <strong>Mode adapté au TDAH</strong>
+                    <p class="option-desc">Réduit les distractions</p>
+                </div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="screen-reader" role="switch" aria-checked="false" tabindex="0">
+                <div>
+                    <strong>Mode Cécité</strong>
+                    <p class="option-desc">Optimisé pour lecteur d'écran</p>
+                </div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <section class="accessibility-section">
+            <h3>Expérience lisible</h3>
+            <div class="slider-option">
+                <label for="font-size-slider">Taille de la police</label>
+                <div class="slider-container">
+                    <input type="range" id="font-size-slider" min="80" max="150" value="100" step="10" aria-valuemin="80" aria-valuemax="150" aria-valuenow="100" aria-label="Ajuster la taille de la police">
+                    <span id="font-size-value">100%</span>
+                </div>
+            </div>
+            <div class="slider-option">
+                <label for="line-height-slider">Hauteur de ligne</label>
+                <div class="slider-container">
+                    <input type="range" id="line-height-slider" min="1.2" max="2.5" value="1.6" step="0.1" aria-label="Ajuster la hauteur de ligne">
+                    <span id="line-height-value">1.6</span>
+                </div>
+            </div>
+            <div class="slider-option">
+                <label for="letter-spacing-slider">Espacement des lettres</label>
+                <div class="slider-container">
+                    <input type="range" id="letter-spacing-slider" min="0" max="5" value="0" step="0.5" aria-label="Ajuster l'espacement des lettres">
+                    <span id="letter-spacing-value">0px</span>
+                </div>
+            </div>
+            <div class="accessibility-option" data-mode="dyslexia-font" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Police adaptée à la dyslexie</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="highlight-headings" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Titres en surbrillance</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="highlight-links" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Liens en surbrillance</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="text-align-options">
+                <label>Alignement du texte</label>
+                <div class="button-group" role="radiogroup" aria-label="Alignement du texte">
+                    <button class="align-btn active" data-align="left" role="radio" aria-checked="true" aria-label="Aligner à gauche"><i class="fas fa-align-left" aria-hidden="true"></i></button>
+                    <button class="align-btn" data-align="center" role="radio" aria-checked="false" aria-label="Centrer"><i class="fas fa-align-center" aria-hidden="true"></i></button>
+                    <button class="align-btn" data-align="right" role="radio" aria-checked="false" aria-label="Aligner à droite"><i class="fas fa-align-right" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="accessibility-section">
+            <h3>Expérience visuellement agréable</h3>
+            <div class="button-group" role="radiogroup" aria-label="Mode de contraste">
+                <button class="contrast-btn active" data-contrast="normal" role="radio" aria-checked="true" aria-label="Contraste normal">Normal</button>
+                <button class="contrast-btn" data-contrast="dark" role="radio" aria-checked="false" aria-label="Mode sombre">Sombre</button>
+                <button class="contrast-btn" data-contrast="light" role="radio" aria-checked="false" aria-label="Mode clair">Clair</button>
+                <button class="contrast-btn" data-contrast="high" role="radio" aria-checked="false" aria-label="Contraste élevé">Élevé</button>
+            </div>
+            <div class="accessibility-option" data-mode="high-saturation" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Haute saturation</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="low-saturation" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Faible saturation</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="monochrome" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Monochrome</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <section class="accessibility-section">
+            <h3>Orientation facile</h3>
+            <div class="accessibility-option" data-mode="highlight-cursor" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Mettre en surbrillance le curseur</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="big-cursor-dark" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Grand curseur sombre</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+            <div class="accessibility-option" data-mode="big-cursor-light" role="switch" aria-checked="false" tabindex="0">
+                <div><strong>Grand curseur clair</strong></div>
+                <div class="toggle-switch" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <button id="reset-accessibility-btn" class="reset-btn">
+            <i class="fas fa-undo" aria-hidden="true"></i> Réinitialiser tous les paramètres
+        </button>
+    </aside>
+
+    <!-- ============================================ -->
+    <!-- HEADER                                       -->
+    <!-- ============================================ -->
+    <header role="banner">
+        <div>
+            <img src="https://skynium.fr/ressources/logo.png" alt="Skynium Academy - Retour à l'accueil"> 
+            <a href="https://academy.skynium.fr"><p>SKYNIUM ACADEMY</p></a>
+        </div>
+        <nav role="navigation" aria-label="Navigation principale">
+            <ul id="main-nav">
+                <li><a href="https://www.skynium.fr/assistance.html">Assistance</a></li>
+                <li><a href="https://www.skynium.fr/temoignage.html">Témoignage</a></li>
+                <li>
+                    <a href="#" aria-haspopup="true" aria-expanded="false">Partenaires</a>
+                    <ul>
+                        <li><a href="https://abovethesky.skynium.fr">Above The Sky</a></li>
+                        <li><a href="https://e-reservation.skynium.fr">Skynium E-Reservation</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://www.skynium.fr/apropos.html">À propos</a></li>
+            </ul>
+            <button id="mobile-menu-icon" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="main-nav">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- ============================================ -->
+    <!-- CONTENU PRINCIPAL                            -->
+    <!-- ============================================ -->
+    <main id="main-content" role="main">
+        
+        <section class="academy-hero">
+            <h1>Skynium Academy</h1>
+            <p>
+                L'infrastructure technologique de Skynium au service de la réussite étudiante. 
+                Retrouvez ici tous les outils alternatifs développés pour faciliter votre quotidien universitaire.
+            </p>
+            <div class="restriction-badge" role="alert">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i> 
+                Accès strictement réservé aux étudiants de la formation amU R&amp;T de Luminy.
+            </div>
+        </section>
+
+        <section class="academy-grid">
+            
+            <!-- Carte Emploi du Temps -->
+            <article class="academy-card">
+                <div class="academy-icon">
+                    <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                </div>
+                <h2>Emploi du Temps R&amp;T</h2>
+                <p>
+                    L'alternative moderne et optimisée à l'outil ADE classique. Consultez votre emploi du temps en temps réel, 
+                    sans ralentissement, avec une interface pensée spécifiquement pour les besoins des étudiants de Luminy.
+                </p>
+                <a href="https://rt-luminy.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn">
+                    Accéder au Planning
+                </a>
+            </article>
+
+            <!-- Carte RuBY -->
+            <article class="academy-card">
+                <div class="academy-icon" style="color: #E0115F;">
+                    <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                </div>
+                <h2 style="color: #E0115F;">RuBY</h2>
+                <p>
+                    L'alternative étudiante à AMeTICE. RuBY est une plateforme d'entraide et de partage contenant des cours 
+                    de soutien, des ressources techniques et des documents indispensables pour exceller dans votre formation Réseaux &amp; Télécoms.
+                </p>
+                <a href="https://ruby.astra.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn ruby-action">
+                    Ouvrir RuBY
+                </a>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- ============================================ -->
+    <!-- FOOTER                                       -->
+    <!-- ============================================ -->
+    <footer role="contentinfo">
+        <div>
+            <h3>Nos réseaux</h3>
+            <nav aria-label="Réseaux sociaux">
+                <ul>
+                    <li><a href="https://instagram.com/skynium"><i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+                    <li><a href="https://facebook.com/SkyniumRECONECT"><i class="fa-brands fa-facebook" aria-hidden="true"></i> Facebook</a></li>
+                    <li><a href="https://wa.me/33667225452"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div>
+            <h3>Informations</h3>
+            <nav aria-label="Informations légales">
+                <ul>
+                    <li><a href="https://skynium.fr/mentionslegales.html">Mentions Légales</a></li>
+                    <li><a href="https://skynium.fr/politiqueconfidentialite.html">Politique de Confidentialité</a></li>
+                    <li><a href="https://skynium.fr/accessibilite.html">Accessibilité : totalement conforme</a></li>
+                    <li><a href="https://skynium.fr/souverainete.html">Souveraineté Numérique</a></li>
+                    <li><a href="https://privacy.skynium.fr">Centre de Confidentialité</a></li>
+                    <li><a href="https://skynium.fr/horizon2027.html">Horizon 2027</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div>
+            <h3>Contact</h3>
+            <p><a href="mailto:contact@skynium.fr"><i class="fa-solid fa-envelope" aria-hidden="true"></i> contact@skynium.fr</a></p>
+            <p><a href="sms:+33667225452"><i class="fa-solid fa-phone" aria-hidden="true"></i> +33 6 67 22 54 52</a></p>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Skynium. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- SCRIPTS GLOBAUX -->
+    <script>var FreeScoutW={s:{"color":"#1d0469","position":"br","locale":"fr","require":["name","email","phone"],"id":1681224262}};(function(d,e,s){if(d.getElementById("freescout-w"))return;a=d.createElement(e);m=d.getElementsByTagName(e)[0];a.async=1;a.id="freescout-w";a.src=s;m.parentNode.insertBefore(a, m)})(document,"script","https://support.iris.skynium.fr/modules/chat/js/widget.js?v=2503");</script>
+    <script src="https://skynium.fr/ressources/accessibility.js"></script>
+    <script src="https://skynium.fr/ressources/app.js"></script>
+    <script src="https://skynium.fr/ressources/skynium-data.js"></script>
+
+</body>
+</html>
