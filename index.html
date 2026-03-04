@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skynium Academy - ENT pour les étudiants </title>
+    <title>Skynium Academy - ENT pour les étudiants</title>
+
+    <!-- SDK Auth0 -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
 
     <!-- Fichiers CSS Globaux -->
     <link rel="stylesheet" href="https://skynium.fr/ressources/style.css">
@@ -18,6 +21,107 @@
     <link rel="manifest" href="https://skynium.fr/ressources/favicon/site.webmanifest" />
 
     <style>
+        /* ==================================================== */
+        /* THÈME RUBY (Écrase les couleurs violettes de Skynium)*/
+        /* ==================================================== */
+        :root {
+            --primary: #900A3C !important; /* Bordeaux/Ruby foncé */
+            --secondary: #E0115F !important; /* Rouge Ruby brillant */
+            --tertiary: #FF5A8C !important; /* Ruby clair / Rosé */
+        }
+
+        /* Classes utilitaires pour l'authentification */
+        .hidden {
+            display: none !important;
+        }
+
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .auth-box {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-top: 5px solid var(--secondary);
+        }
+
+        .auth-box h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .auth-box p {
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .btn-auth {
+            background-color: var(--secondary);
+            color: white !important;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-auth:hover {
+            background-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .spinner {
+            font-size: 3rem;
+            color: var(--secondary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ==================================================== */
+        /* STYLES DES CARTES ET DU CONTENU ACADEMY              */
+        /* ==================================================== */
         .academy-hero {
             text-align: center;
             padding: 3rem 1rem;
@@ -29,8 +133,15 @@
         
         .academy-hero h1 {
             color: var(--primary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             font-size: 2.5rem;
+        }
+
+        .academy-hero .greeting {
+            color: var(--secondary);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
         }
 
         .academy-hero p {
@@ -42,8 +153,8 @@
 
         /* Encart d'avertissement pour la restriction d'accès */
         .restriction-badge {
-            background-color: rgba(255, 138, 63, 0.1); /* Fond orange très léger */
-            border-left: 4px solid var(--tertiary);
+            background-color: rgba(224, 17, 95, 0.08);
+            border-left: 4px solid var(--secondary);
             color: var(--primary);
             padding: 15px 20px;
             margin: 2rem auto 0 auto;
@@ -112,6 +223,7 @@
             transition: background-color var(--transition-speed) ease, transform 0.2s;
             text-decoration: none;
             width: 100%;
+            box-sizing: border-box;
         }
 
         .academy-btn:hover {
@@ -122,12 +234,12 @@
         
         .academy-btn.ruby-action {
             background-color: transparent;
-            color: #E0115F !important; /* Couleur Rouge Ruby approximative */
-            border: 2px solid #E0115F;
+            color: var(--secondary) !important; 
+            border: 2px solid var(--secondary);
         }
         
         .academy-btn.ruby-action:hover {
-            background-color: #E0115F;
+            background-color: var(--secondary);
             color: var(--white) !important;
         }
     </style>
@@ -135,27 +247,43 @@
 <body>
 
     <!-- ============================================ -->
-    <!-- LIEN D'ÉVITEMENT                             -->
+    <!-- LIEN D'ÉVITEMENT (visible au focus clavier)  -->
     <!-- ============================================ -->
     <a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
     <!-- ============================================ -->
-    <!-- BOUTON & PANNEAU ACCESSIBILITÉ               -->
+    <!-- BOUTON ACCESSIBILITÉ FIXE                    -->
     <!-- ============================================ -->
-    <button id="accessibility-button" aria-label="Ouvrir le panneau d'accessibilité" aria-expanded="false" aria-controls="accessibility-panel">
+    <button 
+        id="accessibility-button" 
+        aria-label="Ouvrir le panneau d'accessibilité"
+        aria-expanded="false"
+        aria-controls="accessibility-panel"
+    >
         <i class="fas fa-universal-access" aria-hidden="true"></i>
     </button>
 
-    <aside id="accessibility-panel" class="accessibility-panel" role="dialog" aria-labelledby="accessibility-title" aria-modal="false">
+    <!-- ============================================ -->
+    <!-- PANNEAU D'ACCESSIBILITÉ (latéral droit)      -->
+    <!-- ============================================ -->
+    <aside 
+        id="accessibility-panel" 
+        class="accessibility-panel"
+        role="dialog"
+        aria-labelledby="accessibility-title"
+        aria-modal="false"
+    >
         <button class="close-btn" aria-label="Fermer le panneau d'accessibilité" id="close-panel-btn">
             <i class="fas fa-times" aria-hidden="true"></i>
         </button>
 
         <h2 id="accessibility-title">Options d'accessibilité</h2>
+
         <div class="accessibility-status" role="status" aria-live="polite">
             <p><strong>Modes actifs :</strong> <span id="active-modes-count">Aucun</span></p>
         </div>
 
+        <!-- SECTION 1 : Modes d'accessibilité -->
         <section class="accessibility-section">
             <h3>Modes d'accessibilité</h3>
             <div class="accessibility-option" data-mode="epilepsy-safe" role="switch" aria-checked="false" tabindex="0">
@@ -195,6 +323,7 @@
             </div>
         </section>
 
+        <!-- SECTION 2 : Expérience lisible -->
         <section class="accessibility-section">
             <h3>Expérience lisible</h3>
             <div class="slider-option">
@@ -240,6 +369,7 @@
             </div>
         </section>
 
+        <!-- SECTION 3 : Expérience visuellement agréable -->
         <section class="accessibility-section">
             <h3>Expérience visuellement agréable</h3>
             <div class="button-group" role="radiogroup" aria-label="Mode de contraste">
@@ -262,6 +392,7 @@
             </div>
         </section>
 
+        <!-- SECTION 4 : Orientation facile -->
         <section class="accessibility-section">
             <h3>Orientation facile</h3>
             <div class="accessibility-option" data-mode="highlight-cursor" role="switch" aria-checked="false" tabindex="0">
@@ -278,6 +409,7 @@
             </div>
         </section>
 
+        <!-- BOUTON RÉINITIALISER -->
         <button id="reset-accessibility-btn" class="reset-btn">
             <i class="fas fa-undo" aria-hidden="true"></i> Réinitialiser tous les paramètres
         </button>
@@ -315,51 +447,76 @@
     <!-- ============================================ -->
     <main id="main-content" role="main">
         
-        <section class="academy-hero">
-            <h1>Skynium Academy</h1>
-            <p>
-                L'infrastructure technologique de Skynium au service de la réussite étudiante. 
-                Retrouvez ici tous les outils alternatifs développés pour faciliter votre quotidien universitaire.
-            </p>
-            <div class="restriction-badge" role="alert">
-                <i class="fa-solid fa-lock" aria-hidden="true"></i> 
-                Accès strictement réservé aux étudiants de la formation amU R&amp;T de Luminy.
+        <!-- ÉTAT 1 : CHARGEMENT -->
+        <div id="loading-state" class="auth-container">
+            <i class="fas fa-circle-notch spinner"></i>
+            <h2 style="color: var(--primary);">Initialisation de l'ENT...</h2>
+        </div>
+
+        <!-- ÉTAT 2 : DÉCONNECTÉ -->
+        <div id="logged-out-state" class="auth-container hidden">
+            <div class="auth-box">
+                <i class="fa-solid fa-gem" style="font-size: 3.5rem; color: var(--secondary); margin-bottom: 1rem;"></i>
+                <h2>Skynium Academy</h2>
+                <p>Bienvenue sur la plateforme étudiante. Veuillez vous identifier pour accéder à votre espace de travail et à RuBY.</p>
+                <button id="btn-login" class="btn-auth">
+                    Se connecter <i class="fas fa-sign-in-alt"></i>
+                </button>
             </div>
-        </section>
+        </div>
 
-        <section class="academy-grid">
-            
-            <!-- Carte Emploi du Temps -->
-            <article class="academy-card">
-                <div class="academy-icon">
-                    <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
-                </div>
-                <h2>Emploi du Temps R&amp;T</h2>
+        <!-- ÉTAT 3 : CONNECTÉ (LE VRAI CONTENU DE TA PAGE) -->
+        <div id="logged-in-state" class="hidden">
+            <section class="academy-hero">
+                <h1>Skynium Academy</h1>
+                <!-- Le fameux message familier personnalisé -->
+                <div class="greeting">Hey bienvenue, <span id="user-name">l'ami</span> :)</div>
                 <p>
-                    L'alternative moderne et optimisée à l'outil ADE classique. Consultez votre emploi du temps en temps réel, 
-                    sans ralentissement, avec une interface pensée spécifiquement pour les besoins des étudiants de Luminy.
+                    L'infrastructure technologique de Skynium au service de la réussite étudiante. 
+                    Retrouvez ici tous les outils alternatifs développés pour faciliter votre quotidien universitaire.
                 </p>
-                <a href="https://rt-luminy.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn">
-                    Accéder au Planning
-                </a>
-            </article>
-
-            <!-- Carte RuBY -->
-            <article class="academy-card">
-                <div class="academy-icon" style="color: #E0115F;">
-                    <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                <div class="restriction-badge" role="alert">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i> 
+                    Accès strictement réservé aux étudiants de la formation amU R&amp;T de Luminy.
                 </div>
-                <h2 style="color: #E0115F;">RuBY</h2>
-                <p>
-                    L'alternative étudiante à AMeTICE. RuBY est une plateforme d'entraide et de partage contenant des cours 
-                    de soutien, des ressources techniques et des documents indispensables pour exceller dans votre formation Réseaux &amp; Télécoms.
-                </p>
-                <a href="https://ruby.astra.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn ruby-action">
-                    Ouvrir RuBY
-                </a>
-            </article>
+                
+                <button id="btn-logout" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </section>
 
-        </section>
+            <section class="academy-grid">
+                <!-- Carte Emploi du Temps -->
+                <article class="academy-card">
+                    <div class="academy-icon">
+                        <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                    </div>
+                    <h2>Emploi du Temps R&amp;T</h2>
+                    <p>
+                        L'alternative moderne et optimisée à l'outil ADE classique. Consultez votre emploi du temps en temps réel, 
+                        sans ralentissement, avec une interface pensée spécifiquement pour les besoins des étudiants de Luminy.
+                    </p>
+                    <a href="https://rt-luminy.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn">
+                        Accéder au Planning
+                    </a>
+                </article>
+
+                <!-- Carte RuBY -->
+                <article class="academy-card">
+                    <div class="academy-icon" style="color: var(--secondary);">
+                        <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                    </div>
+                    <h2 style="color: var(--secondary);">RuBY</h2>
+                    <p>
+                        L'alternative étudiante à AMeTICE. RuBY est une plateforme d'entraide et de partage contenant des cours 
+                        de soutien, des ressources techniques et des documents indispensables pour exceller dans votre formation Réseaux &amp; Télécoms.
+                    </p>
+                    <a href="https://ruby.astra.skynium.fr" target="_blank" rel="noopener noreferrer" class="academy-btn ruby-action">
+                        Ouvrir RuBY
+                    </a>
+                </article>
+            </section>
+        </div>
 
     </main>
 
@@ -400,11 +557,122 @@
         </div>
     </footer>
 
-    <!-- SCRIPTS GLOBAUX -->
-    <script>var FreeScoutW={s:{"color":"#1d0469","position":"br","locale":"fr","require":["name","email","phone"],"id":1681224262}};(function(d,e,s){if(d.getElementById("freescout-w"))return;a=d.createElement(e);m=d.getElementsByTagName(e)[0];a.async=1;a.id="freescout-w";a.src=s;m.parentNode.insertBefore(a, m)})(document,"script","https://support.iris.skynium.fr/modules/chat/js/widget.js?v=2503");</script>
-    <script src="https://skynium.fr/ressources/accessibility.js"></script>
+    <!-- =======================
+         LOGIQUE AUTH0 (JAVASCRIPT)
+    ======================== -->
+    <script>
+        let auth0Client = null;
+
+        // --- Configuration Auth0 ---
+        const authConfig = {
+            domain: "auth.skynium.fr", 
+            clientId: "PkYrKLK5l1xuQ4I9luRCLVjzso3glr9Y", // Ton Client ID actuel
+            redirectUri: window.location.origin 
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            
+            // 1. Initialiser le client Auth0
+            try {
+                auth0Client = await auth0.createAuth0Client({
+                    domain: authConfig.domain,
+                    clientId: authConfig.clientId,
+                    authorizationParams: {
+                        redirect_uri: authConfig.redirectUri
+                    }
+                });
+            } catch (e) {
+                console.error("Erreur d'initialisation Auth0", e);
+                document.getElementById("loading-state").classList.add("hidden");
+                document.getElementById("logged-out-state").classList.remove("hidden");
+                return;
+            }
+
+            // 2. Intercepter le retour de connexion (Callback URL)
+            if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+                try {
+                    await auth0Client.handleRedirectCallback();
+                } catch (e) {
+                    console.error("Erreur Callback", e);
+                }
+                // Nettoie l'URL pour faire propre
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 3. Mettre à jour l'interface selon l'état
+            await updateUI();
+
+            // 4. Lier les boutons
+            document.getElementById("btn-login").addEventListener("click", login);
+            document.getElementById("btn-logout").addEventListener("click", logout);
+        });
+
+        // Fonction pour gérer l'affichage de la page
+        const updateUI = async () => {
+            const loadingEl = document.getElementById("loading-state");
+            const loggedOutEl = document.getElementById("logged-out-state");
+            const loggedInEl = document.getElementById("logged-in-state");
+
+            try {
+                const isAuthenticated = await auth0Client.isAuthenticated();
+
+                if (isAuthenticated) {
+                    // On récupère les infos de l'étudiant
+                    const userProfile = await auth0Client.getUser();
+                    
+                    // -- EXTRACTION DU PRÉNOM (Comme pour l'ETNA) --
+                    let prenom = userProfile.given_name 
+                              || userProfile.nickname 
+                              || (userProfile.name ? userProfile.name.split('@')[0].split(' ')[0] : "");
+                    
+                    if (prenom) {
+                        prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1);
+                    } else {
+                        prenom = "l'ami";
+                    }
+                    
+                    // On injecte le prénom dans la page
+                    document.getElementById("user-name").innerText = prenom;
+                    
+                    // On affiche le contenu
+                    loggedInEl.classList.remove("hidden");
+                } else {
+                    // S'il n'est pas connecté, on montre la boîte de login
+                    loggedOutEl.classList.remove("hidden");
+                }
+            } catch (e) {
+                console.error("Erreur UpdateUI", e);
+                loggedOutEl.classList.remove("hidden");
+            } finally {
+                loadingEl.classList.add("hidden");
+            }
+        };
+
+        const login = async () => {
+            try {
+                await auth0Client.loginWithRedirect();
+            } catch (e) {
+                console.error("Erreur Login", e);
+            }
+        };
+
+        const logout = () => {
+            try {
+                auth0Client.logout({
+                    logoutParams: {
+                        returnTo: authConfig.redirectUri
+                    }
+                });
+            } catch (e) {
+                console.error("Erreur Logout", e);
+            }
+        };
+    </script>
+
+    <script>var FreeScoutW={s:{"color":"#900a3c","position":"br","locale":"fr","require":["name","email","phone"],"id":1681224262}};(function(d,e,s){if(d.getElementById("freescout-w"))return;a=d.createElement(e);m=d.getElementsByTagName(e)[0];a.async=1;a.id="freescout-w";a.src=s;m.parentNode.insertBefore(a, m)})(document,"script","https://support.iris.skynium.fr/modules/chat/js/widget.js?v=2503");</script>
     <script src="https://skynium.fr/ressources/app.js"></script>
     <script src="https://skynium.fr/ressources/skynium-data.js"></script>
+    <script src="https://skynium.fr/ressources/accessibility.js"></script>
 
 </body>
 </html>
