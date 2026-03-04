@@ -460,7 +460,7 @@
                 <h2>Skynium Academy</h2>
                 <p>Bienvenue sur la plateforme étudiante. Veuillez vous identifier pour accéder à votre espace de travail et à RuBY.</p>
                 <button id="btn-login" class="btn-auth">
-                    Se connecter <i class="fas fa-sign-in-alt"></i>
+                    Se connecter avec Skynium Student Hub<i class="fas fa-sign-in-alt"></i>
                 </button>
             </div>
         </div>
@@ -620,19 +620,12 @@
                     // On récupère les infos de l'étudiant
                     const userProfile = await auth0Client.getUser();
                     
-                    // -- EXTRACTION DU PRÉNOM (Comme pour l'ETNA) --
-                    let prenom = userProfile.given_name 
-                              || userProfile.nickname 
-                              || (userProfile.name ? userProfile.name.split('@')[0].split(' ')[0] : "");
+                    // -- RÉCUPÉRATION DIRECTE DEPUIS AUTH0 --
+                    // Auth0 renvoie le "username" configuré généralement dans "nickname" ou "name"
+                    let nomAffiche = userProfile.name || userProfile.nickname || "l'ami";
                     
-                    if (prenom) {
-                        prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1);
-                    } else {
-                        prenom = "l'ami";
-                    }
-                    
-                    // On injecte le prénom dans la page
-                    document.getElementById("user-name").innerText = prenom;
+                    // On injecte le nom directement dans la page
+                    document.getElementById("user-name").innerText = nomAffiche;
                     
                     // On affiche le contenu
                     loggedInEl.classList.remove("hidden");
